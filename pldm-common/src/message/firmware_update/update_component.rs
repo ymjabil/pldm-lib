@@ -148,7 +148,7 @@ pub struct UpdateComponentResponse {
     pub comp_compatibility_resp_code: u8,
     pub update_option_flags_enabled: u32,
     pub time_before_req_fw_data: u16,
-    pub get_comp_opaque_data_max_transfer_size: Option<u32>,
+    pub get_comp_opaque_data_max_transfer_size: Option<u16>,
 }
 
 impl UpdateComponentResponse {
@@ -159,7 +159,7 @@ impl UpdateComponentResponse {
         comp_compatibility_resp_code: ComponentCompatibilityResponseCode,
         update_option_flags_enabled: UpdateOptionFlags,
         time_before_req_fw_data: u16,
-        get_comp_opaque_data_max_transfer_size: Option<u32>,
+        get_comp_opaque_data_max_transfer_size: Option<u16>,
     ) -> UpdateComponentResponse {
         UpdateComponentResponse {
             hdr: PldmMsgHeader::new(
@@ -183,7 +183,7 @@ impl UpdateComponentResponse {
             + core::mem::size_of::<u32>()
             + core::mem::size_of::<u16>();
         if self.get_comp_opaque_data_max_transfer_size.is_some() {
-            bytes += core::mem::size_of::<u32>();
+            bytes += core::mem::size_of::<u16>();
         }
         bytes
     }
@@ -227,9 +227,9 @@ impl PldmCodec for UpdateComponentResponse {
         offset += core::mem::size_of::<u16>();
 
         if let Some(size) = self.get_comp_opaque_data_max_transfer_size {
-            size.write_to(&mut buffer[offset..offset + core::mem::size_of::<u32>()])
+            size.write_to(&mut buffer[offset..offset + core::mem::size_of::<u16>()])
                 .unwrap();
-            offset += core::mem::size_of::<u32>();
+            offset += core::mem::size_of::<u16>();
         }
 
         Ok(offset)
@@ -290,9 +290,9 @@ impl PldmCodec for UpdateComponentResponse {
         let get_comp_opaque_data_max_transfer_size = if update_option_flags.component_opaque_data()
         {
             Some(
-                u32::read_from_bytes(
+                u16::read_from_bytes(
                     buffer
-                        .get(offset..offset + core::mem::size_of::<u32>())
+                        .get(offset..offset + core::mem::size_of::<u16>())
                         .ok_or(PldmCodecError::BufferTooShort)?,
                 )
                 .unwrap(),
